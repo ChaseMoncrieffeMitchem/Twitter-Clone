@@ -4,16 +4,27 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "@/firebase";
 import { useEffect, useState } from "react";
+import { setUser } from "@/redux/userSlice";
+import { useRouter } from "next/router";
 
 export function SignupModal() {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+
+  const router = useRouter()
 
   const isOpen = useSelector((state) => state.modals.signupModalOpen);
   const dispatch = useDispatch();
+
+  async function handleGuestSignIn() {
+    await signInWithEmailAndPassword(auth, "guest932847@gmail.com", "guest123")
+  }
 
   async function handledSignUp() {
     const userCredentials = await createUserWithEmailAndPassword(
@@ -21,6 +32,15 @@ export function SignupModal() {
       email,
       password
     );
+
+  
+    await updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: `./assets/profilePictures/pfp${Math.ceil(Math.random() * 6)}.png`
+    })
+
+    router.reload()
+
   }
 
   useEffect(() => {
@@ -29,10 +49,10 @@ export function SignupModal() {
       dispatch(
         setUser({
           username: currentUser.email.split("@")[0],
-          name: null,
+          name: currentUser.displayName,
           email: currentUser.email,
           uid: currentUser.uid,
-          photoUrl: null,
+          photoUrl: currentUser.photoURL,
         })
       );
     });
@@ -63,6 +83,7 @@ export function SignupModal() {
         >
           <div className="w-[90%] mt-8 flex flex-col">
             <button
+              onClick={handleGuestSignIn}
               className=" rounded-md bg-white text-black w-full font-bold text-lg
                 p-2"
             >
@@ -74,6 +95,7 @@ export function SignupModal() {
               placeholder="Full Name"
               className="h-10 mt-8 rounded-md bg-transparent border border-gray-700 p-6"
               type={"text"}
+              onChange={(event) => setName(event.target.value)}
             />
             <input
               placeholder="Email"
