@@ -31,11 +31,12 @@ export default function Tweet({ data, id }) {
   async function likeComment(event) {
     event.stopPropagation();
 
-    if (likes.includes(user.uid)) {
+    if (likes.includes(user.id)) {
       await updateDoc(doc(db, "posts", id), {
         likes: arrayRemove(user.uid),
       });
-    } else {
+    } 
+      else {
       await updateDoc(doc(db, "posts", id), {
         likes: arrayUnion(user.uid),
       });
@@ -84,7 +85,8 @@ export default function Tweet({ data, id }) {
         </div>
         <div onClick={likeComment}>
 
-          {likes.includes(user.uid) ? <FilledHeartIcon /> : <HeartIcon />}
+          {likes.includes(user.uid) ? <FilledHeartIcon /> : <HeartIcon className="w-5 cursor-pointer hover:text-pink-500"/>}
+          
 
         </div>
         <ChartBarIcon className="w-5 cursor-not-allowed" />
